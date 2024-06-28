@@ -47,13 +47,9 @@ app.get("/test", (req, res) => {
 // user routes
 app.use('/api/user', require('./routes/userRoutes'))
 
-// //product routes
-// app.use("/api/product", require("./routes/productRoutes"))
-// //cart routes
-// app.use('/api/user', require('./routes/cartRoutes'));
-// app.use('/api/user', require('./routes/orderRoutes'));
+// //donation routes
+app.use("/api/donation", require("./routes/donationRoutes"))
 
-// app.use("/api/user", require("./routes/favoriteRoutes"));
 
 // our actual routes
 // http://localhost:5000/api/user/create

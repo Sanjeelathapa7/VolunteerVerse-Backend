@@ -5,15 +5,15 @@ const { config } = require("dotenv");
 const Users = require("../model/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 const randomstring = require("randomstring");
-// const { resetCode, mailConfig } = require("../utils/resetPassword");
-// const ResetCode = require("../model/resetcodeModel");
+const { resetCode, mailConfig } = require("../utils/resetPassword");
+const ResetCode = require("../model/resetcodeModel");
 const cloudinary = require("cloudinary");
 // Load environment variables
 config();
 
-// // Mail transporter configuration
+// // // Mail transporter configuration
 // const transporter = nodemailer.createTransport({
 //   service: "gmail", // Assuming Gmail for simplicity; adjust as needed
 //   auth: {
@@ -42,7 +42,8 @@ config();
 // };
 
 const createUser = async (req, res) => {
-  const { firstName, lastName, email, password,confirmPassword } = req.body;
+  console.log(req.body);
+  const { firstName, lastName, email, password, confirmPassword } = req.body;
   if (!firstName || !lastName || !email || !password || !confirmPassword) {
     return res.status(400).json({
       success: false,
@@ -85,6 +86,7 @@ const createUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
@@ -130,102 +132,102 @@ const loginUser = async (req, res) => {
   }
 };
 
-// const resetPassword = async (req, res) => {
-//   const UserData = req.body;
-//   console.log(UserData)
-//   const user = await Users.findOne({ email: UserData?.email });
-//   const OTP = resetCode;
-//   console.log(user.id);
-//   console.log(OTP);
-//   await ResetCode.findOneAndUpdate({
-//     userId: user.id
-//   }, {
-//     resetCode: OTP
-//   }, { upsert: true })
-//   console.log(user);
-//   const MailConfig = mailConfig();
+const resetPassword = async (req, res) => {
+  const UserData = req.body;
+  console.log(UserData)
+  const user = await Users.findOne({ email: UserData?.email });
+  const OTP = resetCode;
+  console.log(user.id);
+  console.log(OTP);
+  await ResetCode.findOneAndUpdate({
+    userId: user.id
+  }, {
+    resetCode: OTP
+  }, { upsert: true })
+  console.log(user);
+  const MailConfig = mailConfig();
 
-//   const mailOptions = {
-//     from: 'sanjeelathapamagar1234@gmail.com', // Replace with your email
-//     to: UserData?.email,
-//     subject: 'Password Reset Code',
-//     text: `Your password reset code is: ${OTP}`
-//   };
+  const mailOptions = {
+    from: 'sanjeelathapamagar1234@gmail.com', // Replace with your email
+    to: UserData?.email,
+    subject: 'Password Reset Code',
+    text: `Your password reset code is: ${OTP}`
+  };
 
-//   try {
-//     await MailConfig.sendMail(mailOptions);
-//     return res.json({
-//       success: true,
-//       message: "Reset code email sent successfully!"
-//     })
-//     // console.log('Reset code email sent successfully!');
-//   } catch (error) {
-//     console.log(error)
-//     return res.json({
-//       success: false,
-//       message: 'Error sending reset code email:' + error.message,
-//     })
-//   }
-// }
+  try {
+    await MailConfig.sendMail(mailOptions);
+    return res.json({
+      success: true,
+      message: "Reset code email sent successfully!"
+    })
+    // console.log('Reset code email sent successfully!');
+  } catch (error) {
+    console.log(error)
+    return res.json({
+      success: false,
+      message: 'Error sending reset code email:' + error.message,
+    })
+  }
+}
 
-// const verifyResetCode = async (req, res) => {
+const verifyResetCode = async (req, res) => {
 
-//   const { resetCode, email } = req.body;
-//   try {
-//     const user = await Users.findOne({ email });
-//     if (!user) {
-//       return res.json({
-//         success: false,
-//         message: "User not found with the provided email."
-//       });
-//     } else {
-//       const savedResetCode = await ResetCode.findOne({ userId: user._id });
-//       if (!savedResetCode || savedResetCode.resetCode != resetCode) {
-//         return res.json({
-//           success: false,
-//           message: "Invalid reset code."
-//         });
-//       } else {
-//         return res.json({
-//           success: true,
-//           message: "Reset code verified successfully."
-//         });
-//       }
-//     }
-//   } catch (error) {
-//     console.error("Error in verifyResetCode:", error);
-//     return res.json({
-//       success: false,
-//       message: 'Server Error: ' + error.message,
-//     });
-//   }    //set opt code null
-// };
+  const { resetCode, email } = req.body;
+  try {
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found with the provided email."
+      });
+    } else {
+      const savedResetCode = await ResetCode.findOne({ userId: user._id });
+      if (!savedResetCode || savedResetCode.resetCode != resetCode) {
+        return res.json({
+          success: false,
+          message: "Invalid reset code."
+        });
+      } else {
+        return res.json({
+          success: true,
+          message: "Reset code verified successfully."
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error in verifyResetCode:", error);
+    return res.json({
+      success: false,
+      message: 'Server Error: ' + error.message,
+    });
+  }    //set opt code null
+};
 
 
-// const updatePassword = async (req, res) => {
-//   const { email, password } = req.body;
-//   // console.log(email, password);
+const updatePassword = async (req, res) => {
+  const { email, password } = req.body;
+  // console.log(email, password);
 
-//   try {
-//     // Update the user's password
-//     const randomSalt = await bcrypt.genSalt(10);
-//     const encryptedPassword = await bcrypt.hash(password, randomSalt);
+  try {
+    // Update the user's password
+    const randomSalt = await bcrypt.genSalt(10);
+    const encryptedPassword = await bcrypt.hash(password, randomSalt);
 
-//     await Users.findOneAndUpdate({ email }, { password: encryptedPassword });
+    await Users.findOneAndUpdate({ email }, { password: encryptedPassword });
 
-//     return res.json({
-//       success: true,
-//       message: "Password reset successfully."
-//     });
+    return res.json({
+      success: true,
+      message: "Password reset successfully."
+    });
 
-//   } catch (error) {
-//     console.log(error);
-//     return res.json({
-//       success: false,
-//       message: 'Server Error: ' + error.message,
-//     });
-//   }
-// };
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      success: false,
+      message: 'Server Error: ' + error.message,
+    });
+  }
+};
 
 // //Profile
 
@@ -328,9 +330,9 @@ const loginUser = async (req, res) => {
 module.exports = {
   createUser,
   loginUser,
-  // resetPassword,
-  // verifyResetCode,
-  // updatePassword,
+  resetPassword,
+  verifyResetCode,
+  updatePassword,
   // updateUserProfile,
   // getUserProfile,
 };
