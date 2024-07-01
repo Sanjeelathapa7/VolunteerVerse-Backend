@@ -50,7 +50,8 @@ app.use('/api/user', require('./routes/userRoutes'))
 // //donation routes
 app.use("/api/donation", require("./routes/donationRoutes"))
 
-
+// //event routes 
+// app.use("/api/event", require("./routes/eventRoutes"))
 // our actual routes
 // http://localhost:5000/api/user/create
 // http://localhost:5000/api/user/login
